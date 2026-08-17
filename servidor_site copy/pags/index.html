@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dilatação Térmica</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #352507, #975416, #9b2611);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 90px 30px 30px;
+        }
+
+        .TabMenu {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            background-color: #241708;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .TabMenu nav {
+            display: flex;
+            gap: 40px;
+        }
+
+        .TabMenu a {
+            color: rgb(223, 201, 193);
+            text-decoration: none;
+            font-size: 18px;
+            padding: 20px 15px;
+        }
+
+        .TabMenu a:hover {
+            color: white;
+            background-color: #5c3212;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
+            text-align: center;
+            color: rgb(223, 201, 193);
+            margin-bottom: 30px;
+            font-size: 38px;
+        }
+
+        input,
+        select {
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            outline: none;
+            background: rgb(223, 201, 193);
+            font-size: 15px;
+        }
+
+        label {
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
+            color: rgb(223, 201, 193);
+            display: block;
+            margin-top: 12px;
+            margin-bottom: 6px;
+            font-size: 18px;
+        }
+
+        .dados {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <header class="TabMenu">
+        <nav>
+            <a href="/about">Sobre</a>
+            <a href="/historic">Histórico</a>
+        </nav>
+    </header>
+
+    <div class="container">
+        <h1>Dilatação Térmica</h1>
+
+        <div class="dados">
+            <label>Tipo material:</label>
+            <select id="material">
+                <option value="aluminio">Alumínio</option>
+            </select>
+        </div>
+
+        <label class="temp" id="temperatura"></label>
+        <label class="dila" id="dilatacao"></label>
+        <label class="dila" id="classifi"></label>
+        <label class="class" id="status"></label>
+    </div>
+
+    <script>
+        async function atualizarDados() {
+            try {
+                const resposta = await fetch('/hist');
+
+                if (!resposta.ok) {
+                    throw new Error("Erro ao buscar histórico!");
+                }
+
+                const historico = await resposta.json();
+
+                if (historico.length === 0) {
+                    return;
+                }
+
+                const ultimo = historico[historico.length - 1];
+                const temperatura = Number(ultimo.temperatura);
+                const dilatacao = Number(ultimo.dilatacao);
+                const classificacao = ultimo.classificacao;
+
+                document.getElementById("temperatura").textContent = `Temperatura: ${temperatura} °C`;
+                document.getElementById("dilatacao").textContent = `Dilatação: ${dilatacao}`;
+                document.getElementById("classifi").textContent = `Classificação: ${classificacao}`;
+                document.getElementById("status").textContent = `Último dado recebido em: ${ultimo.data}`;
+            } catch (erro) {
+                console.error(erro);
+                document.getElementById("status").textContent = "Erro ao receber dados do servidor.";
+            }
+        }
+
+        atualizarDados();
+        setInterval(atualizarDados, 1000);
+    </script>
+</body>
+
+</html>
