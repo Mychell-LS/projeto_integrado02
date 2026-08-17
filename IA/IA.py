@@ -1,14 +1,9 @@
-from flask import Flask, request, jsonify
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 
-app = Flask(__name__)
-
 X = [
-    # -------------------------
-    # BOA - 70 amostras
-    # -------------------------
+
     [0.0000], [0.0001], [0.0002], [0.0003], [0.0004],
     [0.0005], [0.0006], [0.0007], [0.0008], [0.0009],
     [0.0010], [0.0011], [0.0012], [0.0013], [0.0014],
@@ -27,9 +22,8 @@ X = [
     [0.00012], [0.00022], [0.00032], [0.00042], [0.00052],
     [0.00062], [0.00072], [0.00082], [0.00092], [0.00102],
 
-    # -------------------------
-    # MEDIA - 70 amostras
-    # -------------------------
+
+    
     [0.00191], [0.0020], [0.0021], [0.0022], [0.0023],
     [0.0024], [0.0025], [0.0026], [0.0027], [0.0028],
     [0.0029], [0.0030], [0.0031], [0.0032], [0.0033],
@@ -45,12 +39,11 @@ X = [
     [0.00298], [0.00308], [0.00318], [0.00328], [0.00338],
     [0.00348], [0.00358], [0.00368], [0.00373], [0.00378],
 
+
+    
     [0.00202], [0.00212], [0.00222], [0.00232], [0.00242],
     [0.00252], [0.00262], [0.00272], [0.00282], [0.00292],
 
-    # -------------------------
-    # RUIM - 70 amostras
-    # -------------------------
     [0.00381], [0.0039], [0.0040], [0.0041], [0.0042],
     [0.0043], [0.0044], [0.0045], [0.0046], [0.0047],
     [0.0048], [0.0049], [0.0050], [0.0051], [0.0052],
@@ -62,96 +55,24 @@ X = [
     [0.00535], [0.00545], [0.00555], [0.00562], [0.00565],
 
     [0.00388], [0.00398], [0.00408], [0.00418], [0.00428],
-    [0.00438], [0.00448], [0.00458], [0.00468], [0.00478],
-    [0.00488], [0.00498], [0.00508], [0.00518], [0.00528],
-    [0.00538], [0.00548], [0.00558], [0.00563], [0.00568],
-
-    [0.00392], [0.00402], [0.00412], [0.00422], [0.00432],
-    [0.00442], [0.00452], [0.00462], [0.00472], [0.00482]
+    [0.00438], [0.00448], [0.00458], [0.00468], [0.00478]
 ]
 
-# 70 Boa + 70 Media + 70 Ruim
 y = (
     ["Boa"] * 70 +
     ["Media"] * 70 +
     ["Ruim"] * 70
 )
 
-# ============================================================
-# TREINAMENTO
-# ============================================================
-
 X_treino, X_teste, y_treino, y_teste = train_test_split(
-    X,
-    y,
-    test_size=0.5,
-    random_state=42,
-    stratify=y
+    X, y, test_size=0.1, random_state=42
 )
 
-modelo = DecisionTreeClassifier(
-    random_state=42
-)
-
+modelo = DecisionTreeClassifier()
 modelo.fit(X_treino, y_treino)
 
-treino_acc = accuracy_score(
-    y_treino,
-    modelo.predict(X_treino)
-)
+treinoa = accuracy_score(y_treino, modelo.predict(X_treino))
+testea = accuracy_score(y_teste, modelo.predict(X_teste))
 
-teste_acc = accuracy_score(
-    y_teste,
-    modelo.predict(X_teste)
-)
-
-print(f"A acurácia do treino é {treino_acc * 100:.2f}%")
-print(f"A acurácia do teste é {teste_acc * 100:.2f}%")
-
-
-# ============================================================
-# API
-# ============================================================
-
-@app.post("/classificar")
-def classificar():
-
-    dados = request.get_json()
-
-    if not dados or "dilatacao" not in dados:
-        return jsonify({
-            "sucesso": False,
-            "erro": "Dilatação não fornecida."
-        }), 400
-
-    try:
-        dilatacao = float(dados["dilatacao"])
-    except (ValueError, TypeError):
-        return jsonify({
-            "sucesso": False,
-            "erro": "Dilatação inválida."
-        }), 400
-
-    # Limite permitido
-    if dilatacao < 0 or dilatacao > 0.0057:
-        return jsonify({
-            "sucesso": False,
-            "erro": "A dilatação deve estar entre 0 e 0.0057."
-        }), 400
-
-    classificacao = modelo.predict([[dilatacao]])[0]
-
-    print(f"Dilatação recebida: {dilatacao}")
-    print(f"Classificação: {classificacao}")
-
-    return jsonify({
-        "sucesso": True,
-        "dilatacao": dilatacao,
-        "classificacao": classificacao
-    })
-
-if __name__ == "__main__":
-    app.run(
-        host="0.0.0.0",
-        port=5000
-    )
+print(f"A acurácia do treino é {treinoa * 100:.2f}%")
+print(f"A acurácia do teste é {testea * 100:.2f}%")
