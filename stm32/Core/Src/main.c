@@ -102,13 +102,13 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
-  {    //transformar float em inteiro, pois  microcontrolador não trabalha com float
+  {    
 	  HAL_ADC_Start(&hadc1);
 	  HAL_ADC_PollForConversion(&hadc1, HAL_MAX_DELAY);
 	  adcvalor = HAL_ADC_GetValue(&hadc1);
 	  temperatura = round(((adcvalor / 3500.0f) * 250.0f) * 100.0f) / 100.0f;
 	  sprintf(mensagem, "%d\r\n", temperatura);
-	  CDC_Transmit_FS((uint8_t*)mensagem, strlen(mensagem));//TODO: enviar so numero
+	  CDC_Transmit_FS((uint8_t*)mensagem, strlen(mensagem));
 	  HAL_Delay(1000);
     /* USER CODE END WHILE */
 
